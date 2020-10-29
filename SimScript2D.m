@@ -78,6 +78,12 @@ if ~isempty(pattname)
 end
 % -- Data
 y=double(loadtiff(dataname))-valback;maxy=max(y(:));y=y/maxy;              % Load and normalize data
+% -- Ground Truth
+if ~isempty(gtname)                                                        % Load ground truth if available
+    gt=double(loadtiff(gtname))-valback;            
+else
+    gt=[];
+end
 % -- Some parameters
 sz=size(y);
 szUp=size(psf);szUp=szUp(1:2); 
@@ -157,39 +163,31 @@ else
     OpD=LinOpIdentity(H.sizein);
 end
 %% SIM Reconstruction 
-for ii=1:length(lamb)    
-    if ~isempty(pattname)
-        if alg==1     % ADMM
-            FF=[Fn,{pos},{lamb(ii)/(size(otf,3))*Freg}];
-            HH=[Hn,{OpD},{Opreg}];
-            rho=[ones(size(Fn))*rhoDTNN,rhoDTNN,rhoReg];
-            Opt=OptiADMM(F0,FF,HH,rho);
-            Opt.OutOp=OutputOpti2DSIM(1,round(maxIt/10),[1:nbPatt,nbPatt+2]);                             
-        elseif alg==2 % Primal-Dual
-            FF=[Fn,{lamb(ii)/(size(otf,3))*Freg}];
-            HH=[Hn,{Opreg}];
-            Opt=OptiPrimalDualCondat(F0,pos,FF,HH);
-            Opt.tau=tau;
-            Opt.rho=rho;
-            T=HH{1}.makeHtH();for ll=2:length(HH), T=T+HH{ll}.makeHtH(); end;
-            Opt.sig=1/(tau*T.norm);
-            Opt.OutOp=OutputOpti2DSIM(1,round(maxIt/10),2:(2+nbPatt));
-        end
-        Opt.OutOp.fp=nbOutSl+1;
-    else
-        rho=[rhoDTNN,rhoDTNN,rhoReg];
-        Opt=OptiADMM([],[{LS},{pos},{lamb(ii)/(size(otf,3))*Freg}],[{OpD},{OpD},{Opreg}],rho);
-        Opt.OutOp=OutputOpti(1,[],round(maxIt/10),[1,3]);
+for ii=1:length(lamb)
+    if alg==1     % ADMM
+        FF=[Fn,{pos},{lamb(ii)/(size(otf,3))*Freg}];
+        HH=[Hn,{OpD},{Opreg}];
+        rho=[ones(size(Fn))*rhoDTNN,rhoDTNN,rhoReg];
+        Opt=OptiADMM(F0,FF,HH,rho);
+        Opt.OutOp=MyOutputOpti(1,gt,round(maxIt/10),[1:nbPatt,nbPatt+2]);
+    elseif alg==2 % Primal-Dual
+        FF=[Fn,{lamb(ii)/(size(otf,3))*Freg}];
+        HH=[Hn,{Opreg}];
+        Opt=OptiPrimalDualCondat(F0,pos,FF,HH);
+        Opt.tau=tau;
+        Opt.rho=rho;
+        T=HH{1}.makeHtH();for ll=2:length(HH), T=T+HH{ll}.makeHtH(); end;
+        Opt.sig=1/(tau*T.norm);
+        Opt.OutOp=MyOutputOpti(1,gt,round(maxIt/10),2:(2+nbPatt));
     end
     Opt.OutOp.saveXopt=0;
     Opt.CvOp=TestCvgStepRelative(1e-5);
-    if alg==1 && (split~=3 && iterCG~=0)
+    if alg==1 && (split~=2 && iterCG~=0)
         Opt.CG.maxiter=iterCG;
-        Opt.CvOp=TestCvgStepRelative(1e-10);
-    end 
+    end
     Opt.ItUpOut=ItUpOut;              % call OutputOpti update every ItUpOut iterations
     Opt.maxiter=maxIt;                % max number of iterations
-    Opt.run(zeros(Hn{1}.sizein));          % run the algorithm zeros(H.sizein)
+    Opt.run(zeros(Hn{1}.sizein));     % run the algorithm zeros(H.sizein)
     if isGPU==1
         xopt=gather(Opt.xopt);
         fftxopt=gather(log(1+abs(fftshift(fftshift(Sfft(xopt,3),1),2))));   % because Sfft uses zeros_
