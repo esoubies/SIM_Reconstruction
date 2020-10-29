@@ -17,8 +17,8 @@ https://biomedical-imaging-group.github.io/GlobalBioIm/
 
 The repository is organized as follows.
 
-- Folder **Data** contains raw-SIM data with corresponding PSF and patterns generated as explained in PatternsFromFairSIM/HowTo.m
-- Folder **PatternsFromFairSIM** contains a script **HowTo.m** that provide an example on how to generate images of the patterns given the xml file that can be obtained with <a href="https://www.fairsim.org/" target="_blank"> FairSIM </a>
+- Folder **Data** contains raw-SIM data with corresponding PSF and patterns generated as explained in ScriptPatternFromFairSIM.m
+- The script **ScriptPatternFromFairSIM.m** provides an example on how to generate images of the patterns given the xml file that can be obtained with <a href="https://www.fairsim.org/" target="_blank"> FairSIM </a>
 - The script **ScriptFig3.m** reproduces the Figure 3 of [1]
 - The script **SimScript2D.m** contains the main code of the method proposed in [1]
 
