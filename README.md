@@ -21,6 +21,7 @@ The repository is organized as follows.
 - The script **SimuSIM2D.m** allow to generate 2D-SIM data (used in ScriptSimuExample.m).
 - The script **ScriptFig3.m** reproduces the Figure 3 of [1].
 - The script **ScriptSimuExample.m** is an example on a small simulated example without out-of-focus signal.
+- The script **ScriptRealExample.m** is an example on the real SIM data located within the folder Data/.
 - The script **ScriptPatternFromFairSIM.m** provides an example on how to generate images of the patterns given the xml file that can be obtained with <a href="https://www.fairsim.org/" target="_blank"> FairSIM </a>
 - Folder **Data** contains raw-SIM data with corresponding PSF and patterns generated as explained in ScriptPatternFromFairSIM.m
 - Folder **Utils** contains auxilliary functions
