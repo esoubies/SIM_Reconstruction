@@ -156,7 +156,7 @@ elseif Reg==2
 end
 % -- Non-Negativity constraint
 pos=CostNonNeg(H.sizein);
-if alg==1 && (~isempty(pattname) && split==3)
+if alg==1 && (~isempty(pattname) && split==2)
     assert(valId >= 1,'valId must be greater than 1');
     OpD=LinOpDiag(H.sizein,sqrt(valId-sum(patt.^2,3)));
 else
@@ -189,12 +189,12 @@ for ii=1:length(lamb)
     Opt.maxiter=maxIt;                % max number of iterations
     Opt.run(zeros(Hn{1}.sizein));     % run the algorithm zeros(H.sizein)
     if isGPU==1
-        xopt=gather(Opt.xopt);
+        xopt=gather(Opt.xopt(:,:,nbOutSl+1));
         fftxopt=gather(log(1+abs(fftshift(fftshift(Sfft(xopt,3),1),2))));   % because Sfft uses zeros_
     else
-        xopt=Opt.xopt;
-        fftxopt=log(1+abs(fftshift(fftshift(Sfft(xopt,3),1),2))); 
-    end
+        xopt=Opt.xopt(:,:,nbOutSl+1);
+        fftxopt=log(1+abs(fftshift(fftshift(Sfft(xopt,3),1),2)));
+    end   
     if sav
         if ~isempty(pattname)
             saveastiff(single(xopt),[outFolder,'Recons_nbPl',num2str(nbOutSl*2-1),'_lamb',num2str(lamb(ii)),'.tif']);

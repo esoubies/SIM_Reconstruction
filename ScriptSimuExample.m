@@ -11,9 +11,9 @@ clear;close all;clc;
 
 %% Simulation
 % -- Paths
-gtpath='./Data/object.tif';          % file name ground truth 
+gtpath='./Data/object.tif';      % file name ground truth 
 expFolder='SimulatedExample/';   % experiment folder
-sav=1;                             % to save results
+sav=1;                           % to save results
 
 % -- PSF
 lamb=488;                % Illumination wavelength
